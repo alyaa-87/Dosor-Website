@@ -18,7 +18,7 @@ SECRET_KEY = 'django-insecure-k#f^a5e+b&d)pp55u#-s7vg1=y$b=lkx0b)en7+okt4v&^mhld
 DEBUG = True
 
 ALLOWED_HOSTS = ['dosor-website-production.up.railway.app', 'https://dosor-website-production.up.railway.app']
-CSRF_TRUSTED_ORIGINS = ['dosor-website-production.up.railway.app', 'https://dosor-website-production.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://dosor-website-production.up.railway.app']
 
 
 # Application definition
