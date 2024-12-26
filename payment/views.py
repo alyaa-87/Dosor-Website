@@ -199,7 +199,7 @@ def billing_info(request):
 
 		#creat paypal form dictionary
 		paypal_dict = {
-			'business': settings.PAYPAY_RECEIVER_EMAIL,
+			'business': settings.PAYPAL_RECEIVER_EMAIL,
 			'amount': totals,
 			'item_name': 'Shop Order',
 			'no_shipping': '2', #option to use differnt address
