@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 
+#from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,8 +9,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 #load our enviroment variables
 #load_dotenv()
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+#password DB
+DB_PASSWORD_YO = os.environ['DB_PASSWORD_YO']
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-k#f^a5e+b&d)pp55u#-s7vg1=y$b=lkx0b)en7+okt4v&^mhld'
@@ -80,7 +82,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'railway',
         'USER':'postgres',
-        'PASSWORD':os.environ['DB_PASSWORD_YO'],
+        'PASSWORD':DB_PASSWORD_YO,
         'HOST':'junction.proxy.rlwy.net',
         'PORT':'29286',
 
