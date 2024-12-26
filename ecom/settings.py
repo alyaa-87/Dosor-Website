@@ -1,12 +1,12 @@
 from pathlib import Path
 import os
-from dotenv import load_dotenv
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 #load our enviroment variables
-load_dotenv()
+#load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'payment',
     'cart',
     'whitenoise.runserver_nostatic',
+    'paypal.standard.ipn',
 ]
 
 MIDDLEWARE = [
@@ -145,3 +146,9 @@ MEDIA_ROOT=os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#add paypal settings
+#set sandbox to true
+PAYPAL_TEST = True 
+
+PAYPAL_RECEIVER_EMAIL = 'business@dosor.com'  #Business fake sandbox accoutn
