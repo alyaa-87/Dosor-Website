@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from cart.cart import Cart
 from payment.forms import ShippingForm, PaymentForm
 from payment.models import ShippingAddress, Order, OrderItem
@@ -12,6 +12,8 @@ from django.urls import reverse
 from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
 import uuid #unique user id for dublicate orders
+
+
 
 
 def orders(request, pk):
@@ -131,7 +133,11 @@ def process_order(request):
 					if int(key) ==  product.id:
 						#create order itmes
 						create_order_item = OrderItem(order_id=order_id, product_id=product_id, user=user, quantity=value, price=price)
+						product.stock_quantity -= value
 						create_order_item.save()
+						product.save()
+
+
 
 			#delete our cart
 			for key in list(request.session.keys()):
@@ -194,8 +200,21 @@ def billing_info(request):
 		my_shipping = request.POST
 		request.session['my_shipping'] = my_shipping
 
+		#gather info for order
+		full_name= my_shipping['shipping_full_name']
+		email= my_shipping['shipping_email']
+
+		
+		#create shipping address from session info
+		shipping_address=f"{my_shipping['shipping_address1']}\n{my_shipping['shipping_address2']}\n{my_shipping['shipping_city']}\n{my_shipping['shipping_state']}\n{my_shipping['shipping_zipcode']}\n{my_shipping['shipping_country']}"
+		amount_paid= totals
+
+
 		#GET THE HOST
 		host = request.get_host()
+
+		#make invoice
+		my_Invoice = str(uuid.uuid4())
 
 		#creat paypal form dictionary
 		paypal_dict = {
@@ -203,7 +222,7 @@ def billing_info(request):
 			'amount': totals,
 			'item_name': 'Shop Order',
 			'no_shipping': '2', #option to use differnt address
-			'invoice': str(uuid.uuid4()),
+			'invoice': my_Invoice,
 			'currency_code': 'EGP',
 			'notify_url': 'https://{}{}'.format(host, reverse("paypal-ipn")),
 			'return_url': f'https://{host}{reverse("paypal-ipn")}',
@@ -218,15 +237,66 @@ def billing_info(request):
 		if request.user.is_authenticated:
 			#get billing form
 			billing_form = PaymentForm()
+			user = request.user
+			#create order
+			create_order = Order(user=user, full_name=full_name, email=email, shipping_address=shipping_address,amount_paid=amount_paid, invoice=my_Invoice)
+			create_order.save()
+
+			#get items
+
+			#get order id
+			order_id = create_order.pk
+			
+			#get product ids from the cart
+			for product in cart_products():
+				product_id = product.id
+				if product.is_sale:
+					price = product.sale_price
+				else:
+					price = product.price
+
+				#get quantities
+				for key,value in quantities().items():
+					if int(key) ==  product.id:
+						#create order itmes
+						create_order_item = OrderItem(order_id=order_id, product_id=product_id, user=user, quantity=value, price=price)
+						create_order_item.save()
+
+
+			#delete cart from DB (old cart field)
+			current_user = Profile.objects.filter(user__id=request.user.id)
+			#delete shopping cart in database 
+			current_user.update(old_cart="")
+
 			return render(request, "payment/billing_info.html", {"paypal_form":paypal_form, "cart_products": cart_products, "quantities":quantities, "totals":totals,'shipping_info':request.POST, "billing_form":billing_form})
-		
+
+
 		else:
+			#not logged in
+			#create order
+			create_order = Order(full_name=full_name, email=email, shipping_address=shipping_address,amount_paid=amount_paid,invoice=my_Invoice)
+			create_order.save()
+			#get order id
+			order_id = create_order.pk
+			
+			#get product ids from the cart
+			for product in cart_products():
+				product_id = product.id
+				if product.is_sale:
+					price = product.sale_price
+				else:
+					price = Product.price
+
+				#get quantities
+				for key,value in quantities().items():
+					if int(key) ==  product.id:
+						#create order itmes
+						create_order_item = OrderItem(order_id=order_id, product_id=product_id, quantity=value, price=price)
+						create_order_item.save()
+			
 			billing_form = PaymentForm()
 			return render(request, "payment/billing_info.html", {"paypal_form":paypal_form, "cart_products": cart_products, "quantities":quantities, "totals":totals,'shipping_info':request.POST, "billing_form":billing_form})
 
-
-		shipping_form = request.POST
-		return render(request, "payment/billing_info.html", {"cart_products": cart_products, "quantities":quantities, "totals":totals,'shipping_form':shipping_form})
 
 	else:
 		messages.success(request, 'Access denied')
@@ -253,9 +323,24 @@ def checkout(request):
 
 
 def payment_success(request):
+	#delete the broweser cart
+	#get the cart
+	cart = Cart(request)
+	cart_products = cart.get_prods
+	quantities = cart.get_quants
+	totals = cart.cart_total()
+
+	#delete our cart
+	for key in list(request.session.keys()):
+		if key == "session_key":
+			del request.session[key]
+
 	return render(request, "payment/payment_success.html", {})
 
 
 
 def payment_failed(request):
 	return render(request, "payment/payment_failed.html", {})
+
+
+

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Review Product: {{ product.name }}</h1>
+
+  <h3>Write a Review</h3>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit Review</button>
+  </form>
+
+  <h3>Product Reviews</h3>
+  {% if product.reviews.all %}
+    <ul>
+      {% for review in product.reviews.all %}
+        <li>
+          <strong>{{ review.user.username }} (Rating: {{ review.rating }})</strong>
+          <p>{{ review.comment }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No reviews yet. Be the first to review this product!</p>
+  {% endif %}
+{% endblock %}

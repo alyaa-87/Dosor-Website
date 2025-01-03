@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, SetPasswordForm
 from django import forms
-from .models import Profile
+from .models import Profile, Review
 
 
 class UserInfoForm(forms.ModelForm):
@@ -86,3 +86,15 @@ class SignUpForm(UserCreationForm):
 		self.fields['password2'].widget.attrs['placeholder'] = 'Confirm Password'
 		self.fields['password2'].label = ''
 		self.fields['password2'].help_text = '<span class="form-text text-muted"><small>Enter the same password as before, for verification.</small></span>'
+
+
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'comment']
+        widgets = {
+            'rating': forms.Select(choices=[(i, f"{i} Stars") for i in range(1, 6)]),
+            'comment': forms.Textarea(attrs={'rows': 4}),
+        }

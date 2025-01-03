@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from .models import Product, Category, Profile
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -13,6 +13,10 @@ from django import forms
 from django.db.models import Q
 import json
 from cart.cart import Cart
+
+#for the review view
+from django.contrib.auth.decorators import login_required
+from .forms import ReviewForm
 
 
 
@@ -185,3 +189,25 @@ def register_user(request):
 			return render (request, "register.html", {})
 	else:
 		return render (request, "register.html", {'form':form})
+
+
+
+
+
+@login_required
+def submit_review(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.product = product
+            review.user = request.user
+            review.save()
+            return redirect(request, 'product.html', {'product': product})
+		
+    else:
+        form = ReviewForm()
+
+    return render(request, 'submit_review.html', {'form': form, 'product': product})

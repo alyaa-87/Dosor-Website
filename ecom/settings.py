@@ -1,16 +1,19 @@
 from pathlib import Path
 import os
 
-#from dotenv import load_dotenv
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 #load our enviroment variables
-#load_dotenv()
+load_dotenv()
+
+#password for localhost
+DB_PASSWORD_YO = os.environ.get('DB_PASSWORD_YO')
 
 #password DB
-DB_PASSWORD_YO = os.environ['DB_PASSWORD_YO']
+#DB_PASSWORD_YO = os.environ['DB_PASSWORD_YO']
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -19,8 +22,8 @@ SECRET_KEY = 'django-insecure-k#f^a5e+b&d)pp55u#-s7vg1=y$b=lkx0b)en7+okt4v&^mhld
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['dosor-website-production.up.railway.app', 'https://dosor-website-production.up.railway.app']
-CSRF_TRUSTED_ORIGINS = ['https://dosor-website-production.up.railway.app']
+ALLOWED_HOSTS = ['dosor-website-production.up.railway.app', 'https://dosor-website-production.up.railway.app','localhost','127.0.0.1', 'e2cb-197-133-58-13.ngrok-free.app']
+CSRF_TRUSTED_ORIGINS = ['https://dosor-website-production.up.railway.app','https://e786-197-133-58-13.ngrok-free.app','https://e2cb-197-133-58-13.ngrok-free.app']
 
 
 # Application definition
